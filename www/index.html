@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Palette generator</title>
+  </head>
+  <body>
+    <noscript>This page contains webassembly and javascript content, please enable javascript in your browser.</noscript>
+    <script src="./bootstrap.js"></script>
+    <div class = "widget">
+      <div class = "widget-element"><input id = "input-image" type = "file"/></div>
+      <img class = "widge-element" id = "preview" />
+    </div>
+    <div class = "widget">
+      <div class = "widget-element"><input id="generate" type="submit" value="Generate"/></div>
+      <canvas class = "widget-element" width="64" height="64" style="image-rendering: pixelated; image-rendering: crisp-edges; width: 100%;"/>
+    </div>
+  </body>
+</html>
