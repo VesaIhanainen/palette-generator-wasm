@@ -24,9 +24,10 @@ jobs:
         with:
           rust-version: stable
           targets: wasm32-unknown-unknown
-      - working-directory: www
       - run: npm ci
+        working-directory: www
       - run: npm run build
+        working-directory: www
       - uses: actions/upload-artifact@v1
         with:
           name: dist
