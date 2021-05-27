@@ -24,6 +24,10 @@ jobs:
         with:
           rust-version: stable
           targets: wasm32-unknown-unknown
+      - uses: jetli/wasm-pack-action@v0.3.0
+        with:
+          version: 'latest'
+      - run: wasm-pack build
       - run: npm install
         working-directory: www
       - run: npm ci
