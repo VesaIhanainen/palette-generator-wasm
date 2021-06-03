@@ -8,13 +8,11 @@ use web_sys::console;
 use wasm_bindgen::prelude::*;
 use crate::utils::set_panic_hook;
 
-extern crate image;
-use image::load_from_memory;
 
 extern crate regex;
 use regex::Regex;
 
-use base64::{decode,encode};
+use base64::decode;
 
 extern crate kdtree;
 
@@ -42,8 +40,8 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 fn replace_data(input: &str) -> String{
     let mut output = String::with_capacity(input.len());
-    let RE: Regex = Regex::new("^data.*,").unwrap();
-    output = RE.replace(input, "").into();
+    let re: Regex = Regex::new("^data.*,").unwrap();
+    output = re.replace(input, "").into();
     return output;
 }
 
@@ -55,7 +53,7 @@ pub fn image(input: &[u8]){
 #[wasm_bindgen]
 pub fn image_output(input: &[u8]){
     set_panic_hook();
-    let mut base64_string = match str::from_utf8(&input){
+    let base64_string = match str::from_utf8(&input){
         Ok(v) => v,
         Err(e) => panic!("{}",e)
     };    
@@ -64,12 +62,13 @@ pub fn image_output(input: &[u8]){
         Ok(v) => v,
         Err(e) => panic!("{}",e)
     };
-    let img = image::load_from_memory(img_decoded.as_slice()).unwrap();
+    let img = match image::load_from_memory(img_decoded.as_slice()){
+        Ok(v) => v,
+        Err(e) => panic!("{}",e)
+    };
     let k: u32 = 5;
     let centroids = return_colors(img, k, 10);
-    println!("End result: output_palette.png");
-    let output_name = String::from("output_palette.png");
-    let result_image = save_result(centroids,64,output_name);
+    let result_image = save_result(centroids,64);
 
 
 
@@ -97,7 +96,7 @@ pub fn get_output_image_ptr() -> *const u8{
     return pointer;
 }
 
-fn save_result(centroids: Vec<Color>, image_size: u32, image_name: String) -> RgbImage{
+fn save_result(centroids: Vec<Color>, image_size: u32) -> RgbImage{
     let mut resulting_image = RgbImage::new(image_size,image_size);
     let mut index = 0;
     let num_centroids = centroids.len() as u32;
@@ -120,10 +119,8 @@ fn return_colors(input_image: image::DynamicImage, k: u32, runs: i32) -> Vec<Col
     let image_height = input_image.dimensions().1 as usize;
     let image_vec = input_image.as_rgb8().unwrap().to_vec();
     let mut clusters = init_clusters(k);
-    println!("{ }", clusters.len());
     let mut ran = 0;
     while ran < runs {
-        println!("Starting iteration { } out of { }", ran + 1, runs);
         let mut kdtree = KdTree::<f64, usize, &[f64; 3]>::new(3);
         let mut clusters_pos = vec![0; k as usize];
         for i in 0..(k as usize) {
